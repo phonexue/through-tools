@@ -23,20 +23,18 @@ sniffer:
 geodata-mode: true
 geodata-loader: standard
 
-# --- 代理集合 (订阅来源) ---
 proxy-providers:
   # 命名为 'Subscribe'，后续分组将从这里提取节点
   Subscribe:
     type: http
     url: "https://f17927a4db501af1b83f73c861d74fc5.cdn-res-oss-cn-hongkong-aliyuncs-file.com/s?t=f17927a4db501af1b83f73c861d74fc5.jpg&flag=clash&route=1"
-    interval: 604800
+    interval: 86400
     path: ./proxies/subscribe.yaml
     health-check:
       enable: true
       interval: 600
       url: http://www.gstatic.com/generate_204
 
-# --- 策略组 (节点分组逻辑) ---
 proxy-groups:
   - name: 🚀 节点选择
     type: select
@@ -58,9 +56,6 @@ proxy-groups:
     use:
       - Subscribe
 
-  # --- 地区分组 (自动测速) ---
-  # 逻辑：从 'Subscribe' 中正则筛选出对应国家节点，并每300秒测速一次，自动切到最快的
-
   - name: 🇭🇰 香港自动
     type: url-test
     url: http://www.gstatic.com/generate_204
@@ -68,7 +63,6 @@ proxy-groups:
     tolerance: 50
     use:
       - Subscribe
-    # 正则表达式：匹配 HK, HongKong, 香港 等关键词
     filter: "(?i)港|HK|Hong"
 
   - name: 🇯🇵 日本自动
@@ -98,13 +92,11 @@ proxy-groups:
       - Subscribe
     filter: "(?i)新|SG|Singapore"
 
-  # 备用：如果上述地区都没匹配到，或者想看所有节点
   - name: 🏳️‍🌈 全部节点
     type: select
     use:
       - Subscribe
 
-  # 特定服务分组 (可选)
   - name: 📲 电报消息
     type: select
     proxies:
@@ -119,7 +111,6 @@ proxy-groups:
       - 🇯🇵 日本自动
       - 🚀 节点选择
 
-# --- 规则模式 (GeoSite / GeoIP) ---
 # 优先级：从上到下匹配，匹配中即停止
 rules:
   # 1. 广告拦截 (基于 geosite:category-ads-all)
