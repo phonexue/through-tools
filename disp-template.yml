@@ -12,22 +12,11 @@ log-level: info
 ipv6: false
 external-controller: 127.0.0.1:9090
 
-# --- Meta 专属设置 (Mihomo) ---
-# 开启域名嗅探，解决部分应用非域名连接的分流问题
-sniffer:
-  enable: true
-  force-dns-mapping: true
-  parse-pure-ip: true
-
-# GeoX 数据库自动更新设置
-geodata-mode: true
-geodata-loader: standard
-
 proxy-providers:
   # 命名为 'Subscribe'，后续分组将从这里提取节点
   Subscribe:
     type: http
-    url: "https://f17927a4db501af1b83f73c861d74fc5.cdn-res-oss-cn-hongkong-aliyuncs-file.com/s?t=f17927a4db501af1b83f73c861d74fc5.jpg&flag=clash&route=1"
+    url: "https://xxx.example.com/sub"
     interval: 86400
     path: ./proxies/subscribe.yaml
     health-check:
@@ -36,16 +25,19 @@ proxy-providers:
       url: http://www.gstatic.com/generate_204
 
 proxy-groups:
-  - name: 🚀 节点选择
+  - name: 🚀 手动选择
     type: select
     proxies:
-      - ♻️ 自动选择
       - 🇭🇰 香港自动
       - 🇯🇵 日本自动
       - 🇺🇸 美国自动
       - 🇸🇬 新加坡自动
+      - 🇼🇸 台湾自动
+      - 🇰🇷 韩国自动
+      - 🇨🇦 加拿大自动
+      - 🇬🇧 英国自动
       - 🏳️‍🌈 全部节点
-      - DIRECT
+      - 🎯 全球直连
 
   # 2. ♻️ 自动选择 (根据规则自动判断)
   - name: ♻️ 自动选择
@@ -92,51 +84,287 @@ proxy-groups:
       - Subscribe
     filter: "(?i)新|SG|Singapore"
 
+  - name: 🇼🇸 台湾自动
+    type: url-test
+    url: http://www.gstatic.com/generate_204
+    interval: 300
+    tolerance: 50
+    use:
+      - Subscribe
+    filter: "(?i)台|TW|Taiwan"
+  
+  - name: 🇰🇷 韩国自动
+    type: url-test
+    url: http://www.gstatic.com/generate_204
+    interval: 300
+    tolerance: 50
+    use:
+      - Subscribe
+    filter: "(?i)韩|KR|South Korea"
+
+  - name: 🇨🇦 加拿大自动
+    type: url-test
+    url: http://www.gstatic.com/generate_204
+    interval: 300
+    tolerance: 50
+    use:
+      - Subscribe
+    filter: "(?i)加|CA|Canada"
+
+  - name: 🇬🇧 英国自动
+    type: url-test
+    url: http://www.gstatic.com/generate_204
+    interval: 300
+    tolerance: 50
+    use:
+      - Subscribe
+    filter: "(?i)英|GB|Great Britain"
+
   - name: 🏳️‍🌈 全部节点
     type: select
     use:
       - Subscribe
 
-  - name: 📲 电报消息
+  - name: 🎯 全球直连
     type: select
     proxies:
-      - 🚀 节点选择
-      - 🇭🇰 香港自动
-      - 🇸🇬 新加坡自动
+      - DIRECT
 
-  - name: 🤖 OpenAI
+  - name: 🚀 测速工具
     type: select
     proxies:
-      - 🇺🇸 美国自动
+      - 🎯 全球直连
+
+  - name: 🚀 GitHub
+    type: select
+    proxies:
+      - 🚀 手动选择
+      - ♻️ 自动选择
+      - 🇭🇰 香港自动
       - 🇯🇵 日本自动
-      - 🚀 节点选择
+      - 🇺🇸 美国自动
+      - 🇸🇬 新加坡自动
+      - 🎯 全球直连
+
+  - name: 💬 即时通讯
+    type: select
+    proxies:
+      - 🚀 手动选择
+      - ♻️ 自动选择
+      - 🇭🇰 香港自动
+      - 🇯🇵 日本自动
+      - 🇺🇸 美国自动
+      - 🇸🇬 新加坡自动
+      - 🎯 全球直连
+
+  - name: 🌐 社交媒体
+    type: select
+    proxies:
+      - 🚀 手动选择
+      - ♻️ 自动选择
+      - 🇭🇰 香港自动
+      - 🇯🇵 日本自动
+      - 🇺🇸 美国自动
+      - 🇸🇬 新加坡自动
+      - 🎯 全球直连
+
+  - name: 🤖 ChatGPT
+    type: select
+    proxies:
+      - 🚀 手动选择
+      - ♻️ 自动选择
+      - 🇭🇰 香港自动
+      - 🇯🇵 日本自动
+      - 🇺🇸 美国自动
+      - 🇸🇬 新加坡自动
+      - 🎯 全球直连
+
+  - name: 🤖 AI服务
+    type: select
+    proxies:
+      - 🚀 手动选择
+      - ♻️ 自动选择
+      - 🇭🇰 香港自动
+      - 🇯🇵 日本自动
+      - 🇺🇸 美国自动
+      - 🇸🇬 新加坡自动
+      - 🎯 全球直连
+
+  - name: 📹 YouTube
+    type: select
+    proxies:
+      - 🚀 手动选择
+      - ♻️ 自动选择
+      - 🇭🇰 香港自动
+      - 🇯🇵 日本自动
+      - 🇺🇸 美国自动
+      - 🇸🇬 新加坡自动
+      - 🎯 全球直连
+
+  - name: 🎥 国外影视
+    type: select
+    proxies:
+      - 🚀 手动选择
+      - ♻️ 自动选择
+      - 🇭🇰 香港自动
+      - 🇯🇵 日本自动
+      - 🇺🇸 美国自动
+      - 🇸🇬 新加坡自动
+      - 🎯 全球直连
+
+  - name: 🌎 国外媒体
+    type: select
+    proxies:
+      - 🚀 手动选择
+      - ♻️ 自动选择
+      - 🇭🇰 香港自动
+      - 🇯🇵 日本自动
+      - 🇺🇸 美国自动
+      - 🇸🇬 新加坡自动
+      - 🎯 全球直连
+
+  - name: 🎻 Music
+    type: select
+    proxies:
+      - 🚀 手动选择
+      - ♻️ 自动选择
+      - 🇭🇰 香港自动
+      - 🇯🇵 日本自动
+      - 🇺🇸 美国自动
+      - 🇸🇬 新加坡自动
+      - 🎯 全球直连
+
+  - name: 🍎 苹果服务
+    type: select
+    proxies:
+      - 🚀 手动选择
+      - ♻️ 自动选择
+      - 🇭🇰 香港自动
+      - 🇯🇵 日本自动
+      - 🇺🇸 美国自动
+      - 🇸🇬 新加坡自动
+      - 🎯 全球直连
+
+  - name: Ⓜ️ 微软服务
+    type: select
+    proxies:
+      - 🚀 手动选择
+      - ♻️ 自动选择
+      - 🇭🇰 香港自动
+      - 🇯🇵 日本自动
+      - 🇺🇸 美国自动
+      - 🇸🇬 新加坡自动
+      - 🎯 全球直连
+
+  - name: 🇬 谷歌服务
+    type: select
+    proxies:
+      - 🚀 手动选择
+      - ♻️ 自动选择
+      - 🇭🇰 香港自动
+      - 🇯🇵 日本自动
+      - 🇺🇸 美国自动
+      - 🇸🇬 新加坡自动
+      - 🎯 全球直连
+
+  - name: 🎮 游戏平台
+    type: select
+    proxies:
+      - 🚀 手动选择
+      - ♻️ 自动选择
+      - 🇭🇰 香港自动
+      - 🇯🇵 日本自动
+      - 🇺🇸 美国自动
+      - 🇸🇬 新加坡自动
+      - 🎯 全球直连
+
+  - name: 🛒 国外电商
+    type: select
+    proxies:
+      - 🚀 手动选择
+      - ♻️ 自动选择
+      - 🇭🇰 香港自动
+      - 🇯🇵 日本自动
+      - 🇺🇸 美国自动
+      - 🇸🇬 新加坡自动
+      - 🎯 全球直连
+
+  - name: 🔀 非标端口
+    type: select
+    proxies:
+      - 🚀 手动选择
+      - ♻️ 自动选择
+      - 🇭🇰 香港自动
+      - 🇯🇵 日本自动
+      - 🇺🇸 美国自动
+      - 🇸🇬 新加坡自动
+      - 🎯 全球直连
+
+  - name: 🐟 漏网之鱼
+    type: select
+    proxies:
+      - 🚀 手动选择
+      - ♻️ 自动选择
+      - 🎯 全球直连
 
 # 优先级：从上到下匹配，匹配中即停止
 rules:
   # 1. 广告拦截 (基于 geosite:category-ads-all)
   - GEOSITE,category-ads-all,REJECT
-
-  # 2. 直连国内常见域名 (基于 geosite:cn)
-  - GEOSITE,cn,DIRECT
-
-  # 3. 常见不可直连应用处理
-  - GEOSITE,telegram,📲 电报消息
-  - GEOSITE,openai,🤖 OpenAI
-  - GEOSITE,youtube,🚀 节点选择
-  - GEOSITE,google,🚀 节点选择
-  - GEOSITE,netflix,🚀 节点选择
-  - GEOSITE,disney,🚀 节点选择
   
-  # 4. 局域网和私有地址直连
-  - GEOSITE,private,DIRECT
-  - GEOIP,private,DIRECT,no-resolve
+  - GEOSITE,category-game-platforms-download,🎯 全球直连
+  - GEOSITE,category-public-tracker,🎯 全球直连
 
-  # 5. 腾讯/阿里系特定处理 (防止误杀)
-  - GEOIP,telegram,📲 电报消息
+  - GEOSITE,telegram,💬 即时通讯
+  - GEOIP,telegram,💬 即时通讯,no-resolve
+  - GEOSITE,category-communication,💬 即时通讯
 
-  # 6. 中国大陆 IP 直连 (基于 GeoIP 数据库)
-  - GEOIP,cn,DIRECT
+  - GEOSITE,category-social-media-!cn,🌐 社交媒体
+  - GEOIP,twitter,🌐 社交媒体,no-resolve
+  - GEOIP,facebook,🌐 社交媒体,no-resolve
 
-  # 7. 兜底规则：剩下的全部走代理
-  # 如果是非中国 IP，且上面没匹配到，走节点选择
-  - MATCH,🚀 节点选择
+  - GEOSITE,openai,🤖 ChatGPT
+  - GEOSITE,bing,🤖 AI服务
+  - GEOSITE,category-ai-!cn,🤖 AI服务
+
+  - GEOSITE,github,🚀 GitHub
+
+  - GEOSITE,category-speedtest,🚀 测速工具
+
+  - GEOSITE,category-games,🎮 游戏平台
+  - GEOSITE,steam,🎮 游戏平台
+
+  - GEOSITE,apple,🍎 苹果服务
+  - GEOSITE,microsoft,Ⓜ️ 微软服务
+  - GEOSITE,googlefcm,🇬 谷歌服务
+  - GEOSITE,google,🇬 谷歌服务
+  - GEOIP,google,🇬 谷歌服务,no-resolve
+
+  - GEOSITE,youtube,📹 YouTube
+  - GEOSITE,apple-tvplus,🎥 国外影视
+  - GEOSITE,netflix,🎥 国外影视
+  - GEOIP,netflix,🎥 国外影视,no-resolve
+  - GEOSITE,disney,🎥 国外影视
+  - GEOSITE,hbo,🎥 国外影视
+  - GEOSITE,primevideo,🎥 国外影视
+  - GEOSITE,category-emby,🎥 国外影视
+
+  - GEOSITE,spotify,🎻 Music
+  - GEOSITE,tiktok,🎻 Music
+
+  - GEOSITE,category-entertainment,🌎 国外媒体
+  - GEOSITE,category-ecommerce,🛒 国外电商
+
+  - GEOSITE,gfw,🚀 手动选择
+  
+  - GEOSITE,cn,🎯 全球直连
+  - GEOIP,cn,🎯 全球直连,no-resolve
+  
+  - GEOSITE,private,🎯 全球直连
+  - GEOIP,private,🎯 全球直连,no-resolve
+
+  - DST-PORT,1-79,🔀 非标端口
+  - DST-PORT,81-442,🔀 非标端口
+  - DST-PORT,444-65535,🔀 非标端口
+
+  - MATCH,🐟 漏网之鱼
