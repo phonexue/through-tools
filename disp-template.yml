@@ -1,0 +1,151 @@
+# ==============================================
+# OpenClash / Clash Meta (Mihomo) 配置文件模板
+# 功能：自动地区分组、自动测速选择、GeoSite/GeoIP 规则
+# ==============================================
+
+# --- 基础设置 ---
+port: 7890
+socks-port: 7891
+allow-lan: true
+mode: rule
+log-level: info
+ipv6: false
+external-controller: 127.0.0.1:9090
+
+# --- Meta 专属设置 (Mihomo) ---
+# 开启域名嗅探，解决部分应用非域名连接的分流问题
+sniffer:
+  enable: true
+  force-dns-mapping: true
+  parse-pure-ip: true
+
+# GeoX 数据库自动更新设置
+geodata-mode: true
+geodata-loader: standard
+
+# --- 代理集合 (订阅来源) ---
+proxy-providers:
+  # 命名为 'Subscribe'，后续分组将从这里提取节点
+  Subscribe:
+    type: http
+    url: "https://f17927a4db501af1b83f73c861d74fc5.cdn-res-oss-cn-hongkong-aliyuncs-file.com/s?t=f17927a4db501af1b83f73c861d74fc5.jpg&flag=clash&route=1"
+    interval: 604800
+    path: ./proxies/subscribe.yaml
+    health-check:
+      enable: true
+      interval: 600
+      url: http://www.gstatic.com/generate_204
+
+# --- 策略组 (节点分组逻辑) ---
+proxy-groups:
+  - name: 🚀 节点选择
+    type: select
+    proxies:
+      - ♻️ 自动选择
+      - 🇭🇰 香港自动
+      - 🇯🇵 日本自动
+      - 🇺🇸 美国自动
+      - 🇸🇬 新加坡自动
+      - 🏳️‍🌈 全部节点
+      - DIRECT
+
+  # 2. ♻️ 自动选择 (根据规则自动判断)
+  - name: ♻️ 自动选择
+    type: url-test
+    url: http://www.gstatic.com/generate_204
+    interval: 300
+    tolerance: 50
+    use:
+      - Subscribe
+
+  # --- 地区分组 (自动测速) ---
+  # 逻辑：从 'Subscribe' 中正则筛选出对应国家节点，并每300秒测速一次，自动切到最快的
+
+  - name: 🇭🇰 香港自动
+    type: url-test
+    url: http://www.gstatic.com/generate_204
+    interval: 300
+    tolerance: 50
+    use:
+      - Subscribe
+    # 正则表达式：匹配 HK, HongKong, 香港 等关键词
+    filter: "(?i)港|HK|Hong"
+
+  - name: 🇯🇵 日本自动
+    type: url-test
+    url: http://www.gstatic.com/generate_204
+    interval: 300
+    tolerance: 50
+    use:
+      - Subscribe
+    filter: "(?i)日|JP|Japan"
+
+  - name: 🇺🇸 美国自动
+    type: url-test
+    url: http://www.gstatic.com/generate_204
+    interval: 300
+    tolerance: 50
+    use:
+      - Subscribe
+    filter: "(?i)美|US|United States"
+
+  - name: 🇸🇬 新加坡自动
+    type: url-test
+    url: http://www.gstatic.com/generate_204
+    interval: 300
+    tolerance: 50
+    use:
+      - Subscribe
+    filter: "(?i)新|SG|Singapore"
+
+  # 备用：如果上述地区都没匹配到，或者想看所有节点
+  - name: 🏳️‍🌈 全部节点
+    type: select
+    use:
+      - Subscribe
+
+  # 特定服务分组 (可选)
+  - name: 📲 电报消息
+    type: select
+    proxies:
+      - 🚀 节点选择
+      - 🇭🇰 香港自动
+      - 🇸🇬 新加坡自动
+
+  - name: 🤖 OpenAI
+    type: select
+    proxies:
+      - 🇺🇸 美国自动
+      - 🇯🇵 日本自动
+      - 🚀 节点选择
+
+# --- 规则模式 (GeoSite / GeoIP) ---
+# 优先级：从上到下匹配，匹配中即停止
+rules:
+  # 1. 广告拦截 (基于 geosite:category-ads-all)
+  - GEOSITE,category-ads-all,REJECT
+
+  # 2. 直连国内常见域名 (基于 geosite:cn)
+  - GEOSITE,cn,DIRECT
+
+  # 3. 常见不可直连应用处理
+  - GEOSITE,telegram,📲 电报消息
+  - GEOSITE,openai,🤖 OpenAI
+  - GEOSITE,youtube,🚀 节点选择
+  - GEOSITE,google,🚀 节点选择
+  - GEOSITE,netflix,🚀 节点选择
+  - GEOSITE,disney,🚀 节点选择
+  
+  # 4. 局域网和私有地址直连
+  - GEOSITE,private,DIRECT
+  - GEOIP,private,DIRECT,no-resolve
+
+  # 5. 腾讯/阿里系特定处理 (防止误杀)
+  - GEOIP,telegram,📲 电报消息
+
+  # 6. 中国大陆 IP 直连 (基于 GeoIP 数据库)
+  - GEOIP,cn,DIRECT
+
+  # 7. 兜底规则：剩下的全部走代理
+  # 如果是非中国 IP，且上面没匹配到，走节点选择
+  - MATCH,🚀 节点选择
